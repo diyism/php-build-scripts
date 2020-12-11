@@ -1,5 +1,5 @@
 #!/bin/bash
-[ -z "$PHP_VERSION" ] && PHP_VERSION="7.4.13"
+[ -z "$PHP_VERSION" ] && PHP_VERSION="7.4.12"
 
 ZLIB_VERSION="1.2.11"
 GMP_VERSION="6.2.0"
@@ -23,6 +23,8 @@ EXT_IGBINARY_VERSION="3.1.4"
 EXT_DS_VERSION="2ddef84d3e9391c37599cb716592184315e23921"
 EXT_CRYPTO_VERSION="5f26ac91b0ba96742cc6284cd00f8db69c3788b2"
 EXT_RECURSIONGUARD_VERSION="d6ed5da49178762ed81dc0184cd34ff4d3254720"
+
+EXT_SWOOLE_VERSION="348b5ad6c8c30ef9d02f1729b39b3f7f0f06decf"
 
 function write_out {
 	echo "[$1] $2"
@@ -99,7 +101,7 @@ function download_file {
 #fi
 
 COMPILE_FOR_ANDROID=no
-HAVE_MYSQLI="--enable-mysqlnd --with-mysqli=mysqlnd"
+HAVE_MYSQLI="--without-mysqli --without-mysqlnd"
 COMPILE_TARGET=""
 COMPILE_FANCY="no"
 IS_CROSSCOMPILE="no"
@@ -763,11 +765,11 @@ else
 	HAVE_READLINE="--without-readline"
 fi
 
-build_zlib
-build_gmp
+#build_zlib
+#build_gmp
 build_openssl
-build_curl
-build_yaml
+#build_curl
+#build_yaml
 if [ "$COMPILE_LEVELDB" == "yes" ]; then
 	build_leveldb
 fi
@@ -781,9 +783,9 @@ else
 	HAS_LIBJPEG=""
 fi
 
-build_libxml2
-build_libzip
-build_sqlite3
+#build_libxml2
+#build_libzip
+#build_sqlite3
 
 # PECL libraries
 
@@ -827,15 +829,17 @@ fi
 #	HAS_PROFILER=""
 #fi
 
+get_github_extension "swoole" "$EXT_SWOOLE_VERSION" "swoole" "swoole-src"
+
 get_github_extension "pthreads" "$EXT_PTHREADS_VERSION" "pmmp" "pthreads" #"v" needed for release tags because github removes the "v"
 #get_pecl_extension "pthreads" "$EXT_PTHREADS_VERSION"
 
-get_github_extension "yaml" "$EXT_YAML_VERSION" "php" "pecl-file_formats-yaml"
+#get_github_extension "yaml" "$EXT_YAML_VERSION" "php" "pecl-file_formats-yaml"
 #get_pecl_extension "yaml" "$EXT_YAML_VERSION"
 
 get_github_extension "igbinary" "$EXT_IGBINARY_VERSION" "igbinary" "igbinary"
 
-get_github_extension "ds" "$EXT_DS_VERSION" "php-ds" "ext-ds"
+#get_github_extension "ds" "$EXT_DS_VERSION" "php-ds" "ext-ds"
 
 get_github_extension "recursionguard" "$EXT_RECURSIONGUARD_VERSION" "pmmp" "ext-recursionguard"
 
@@ -907,8 +911,8 @@ if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 		export LIBS="$LIBS -lpthread"
 	fi
 
-	mv ext/mysqlnd/config9.m4 ext/mysqlnd/config.m4
-	sed  -i=".backup" "s{ext/mysqlnd/php_mysqlnd_config.h{config.h{" ext/mysqlnd/mysqlnd_portability.h
+	#mv ext/mysqlnd/config9.m4 ext/mysqlnd/config.m4
+	#sed  -i=".backup" "s{ext/mysqlnd/php_mysqlnd_config.h{config.h{" ext/mysqlnd/mysqlnd_portability.h
 elif [ "$DO_STATIC" == "yes" ]; then
 	export LIBS="$LIBS -ldl"
 fi
@@ -938,15 +942,30 @@ if [ "$FSANITIZE_OPTIONS" != "" ]; then
 	LDFLAGS="-fsanitize=$FSANITIZE_OPTIONS $LDFLAGS"
 fi
 
+#--with-gmp \
+#--with-yaml \
+#--with-curl \
+#--with-zlib \
+
+#--with-libxml \
+#--enable-xml \
+#--enable-dom \
+#--enable-simplexml \
+#--enable-xmlreader \
+#--enable-xmlwriter \
+
+#--with-pdo-sqlite \
+
+#--with-zip \
+
+#--enable-ds \
+
 RANLIB=$RANLIB CFLAGS="$CFLAGS $FLAGS_LTO" CXXFLAGS="$CXXFLAGS $FLAGS_LTO" LDFLAGS="$LDFLAGS $FLAGS_LTO" ./configure $PHP_OPTIMIZATION --prefix="$DIR/bin/php7" \
 --exec-prefix="$DIR/bin/php7" \
---with-curl \
---with-zlib \
---with-zlib \
---with-gmp \
---with-yaml \
+--disable-all \
+--with-swoole \
+--enable-swoole \
 --with-openssl \
---with-zip \
 $HAS_LIBJPEG \
 $HAS_GD \
 $HAVE_READLINE \
@@ -959,19 +978,11 @@ $HAS_POCKETMINE_CHUNKUTILS \
 --enable-calendar \
 --enable-pthreads \
 --disable-fileinfo \
---with-libxml \
---enable-xml \
---enable-dom \
---enable-simplexml \
---enable-xmlreader \
---enable-xmlwriter \
 --disable-cgi \
 --disable-phpdbg \
 --disable-session \
 --without-pear \
 --without-iconv \
---with-pdo-sqlite \
---with-pdo-mysql \
 --with-pic \
 --enable-phar \
 --enable-ctype \
@@ -988,7 +999,6 @@ $HAVE_MYSQLI \
 --enable-ftp \
 --enable-opcache=$HAVE_OPCACHE \
 --enable-igbinary \
---enable-ds \
 --with-crypto \
 --enable-recursionguard \
 $HAVE_VALGRIND \
