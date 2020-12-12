@@ -24,7 +24,7 @@ EXT_DS_VERSION="2ddef84d3e9391c37599cb716592184315e23921"
 EXT_CRYPTO_VERSION="5f26ac91b0ba96742cc6284cd00f8db69c3788b2"
 EXT_RECURSIONGUARD_VERSION="d6ed5da49178762ed81dc0184cd34ff4d3254720"
 
-EXT_SWOOLE_VERSION="348b5ad6c8c30ef9d02f1729b39b3f7f0f06decf"
+EXT_SWOOLE_VERSION="dbe5a160f0448cc94f49214f9c1f9c08bdcdb210"
 
 function write_out {
 	echo "[$1] $2"
@@ -829,7 +829,7 @@ fi
 #	HAS_PROFILER=""
 #fi
 
-get_github_extension "swoole" "$EXT_SWOOLE_VERSION" "swoole" "swoole-src"
+get_github_extension "swoole" "$EXT_SWOOLE_VERSION" "diyism" "swoole-src"
 
 get_github_extension "pthreads" "$EXT_PTHREADS_VERSION" "pmmp" "pthreads" #"v" needed for release tags because github removes the "v"
 #get_pecl_extension "pthreads" "$EXT_PTHREADS_VERSION"
@@ -965,6 +965,7 @@ RANLIB=$RANLIB CFLAGS="$CFLAGS $FLAGS_LTO" CXXFLAGS="$CXXFLAGS $FLAGS_LTO" LDFLA
 --disable-all \
 --with-swoole \
 --enable-swoole \
+--enable-openssl \
 --with-openssl \
 $HAS_LIBJPEG \
 $HAS_GD \
